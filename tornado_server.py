@@ -2,11 +2,13 @@ import logging
 import signal
 import base64
 
+import cv2
+
 import tornado.web
 import tornado.websocket
 from tornado.ioloop import PeriodicCallback, IOLoop
 
-import cv2
+import settings
 
 cap = cv2.VideoCapture(0)
 
@@ -57,7 +59,9 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
         
 
     def open(self):
-        self.writer = PeriodicCallback(self.fetch_data, 1000)
+        # set the interval depending on the frames per second set in settings
+        interval = 1000 / settings.FRAMES_PER_SECOND
+        self.writer = PeriodicCallback(self.fetch_data, interval)
         self.writer.start()
 
     def data_received(self, chunk):
